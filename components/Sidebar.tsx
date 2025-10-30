@@ -14,6 +14,22 @@ const Sidebar = () => {
               </a>
             </Link>
           </li>
+          {/* ▼▼▼ モニタリングページへのリンクを追加 ▼▼▼ */}
+          <li>
+            <Link href="/monitoring" legacyBehavior>
+              <a className="block py-2 px-3 rounded hover:bg-gray-700">
+                Monitoring
+              </a>
+            </Link>
+          </li>
+          {/* ▼▼▼ カレンダーページへのリンクを追加 ▼▼▼ */}
+          <li>
+            <Link href="/calendar" legacyBehavior>
+              <a className="block py-2 px-3 rounded hover:bg-gray-700">
+                Calendar
+              </a>
+            </Link>
+          </li>
           <li>
             <Link href="/database-management" legacyBehavior>
               <a className="block py-2 px-3 rounded hover:bg-gray-700">

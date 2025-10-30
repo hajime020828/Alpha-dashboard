@@ -84,8 +84,12 @@ export interface ProjectDetailApiResponse {
   finalPLBps: number | null;
 }
 
-// 重複定義を削除 (前の定義に含まれているため)
-// export interface ProjectDetailApiResponse {
-//   project: ProjectWithProgress | undefined;
-//   stockRecords: ChildOrderRecord[]; // ここを変更
-// }
+// ▼▼▼ 【追加】カレンダーイベントの型定義 ▼▼▼
+export interface CalendarEventDb {
+  id: number;
+  title: string;
+  start_date: string; // ISO String
+  end_date: string;   // ISO String
+  allDay: number;     // 0 or 1
+  color?: string | null;
+}

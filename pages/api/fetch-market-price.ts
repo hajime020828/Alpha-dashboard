@@ -5,6 +5,7 @@ type MarketDataResponse = {
     ticker: string;
     price: number | null;
     allDayVWAP: number | null;
+    chgPct1d: number | null; // ★ 1日% (CHG_PCT_1D) を追加
 } | {
     error: string;
 };
@@ -20,8 +21,8 @@ export default async function handler(
   }
 
   try {
-    // blpapi.pyのエンドポイントを呼び出し、PX_LASTとALL_DAY_VWAPを同時に取得
-    const flaskApiUrl = `http://localhost:5001/api/reference_data?ticker=${encodeURIComponent(ticker)}&fields=PX_LAST,ALL_DAY_VWAP`;
+    // ★ fields に CHG_PCT_1D を追加
+    const flaskApiUrl = `http://localhost:5001/api/reference_data?ticker=${encodeURIComponent(ticker)}&fields=PX_LAST,ALL_DAY_VWAP,CHG_PCT_1D`;
     
     console.log(`Fetching market data from Flask API: ${flaskApiUrl}`);
     const marketDataRes = await fetch(flaskApiUrl);
@@ -41,6 +42,7 @@ export default async function handler(
         
         const price = typeof securityData.PX_LAST === 'number' ? securityData.PX_LAST : null;
         const allDayVWAP = typeof securityData.ALL_DAY_VWAP === 'number' ? securityData.ALL_DAY_VWAP : null;
+        const chgPct1d = typeof securityData.CHG_PCT_1D === 'number' ? securityData.CHG_PCT_1D : null; // ★ 追加
 
         // 個別のフィールドエラーも確認
         if (typeof securityData.PX_LAST === 'string' && securityData.PX_LAST.startsWith("Field Error:")) {
@@ -48,6 +50,9 @@ export default async function handler(
         }
         if (typeof securityData.ALL_DAY_VWAP === 'string' && securityData.ALL_DAY_VWAP.startsWith("Field Error:")) {
             console.error(`Field error for ALL_DAY_VWAP on ${ticker}: ${securityData.ALL_DAY_VWAP}`);
+        }
+        if (typeof securityData.CHG_PCT_1D === 'string' && securityData.CHG_PCT_1D.startsWith("Field Error:")) { // ★ 追加
+            console.error(`Field error for CHG_PCT_1D on ${ticker}: ${securityData.CHG_PCT_1D}`);
         }
         
         if (securityData.securityError) {
@@ -57,13 +62,13 @@ export default async function handler(
         return res.status(200).json({ 
             ticker: securityData.security, 
             price: price,
-            allDayVWAP: allDayVWAP 
+            allDayVWAP: allDayVWAP,
+            chgPct1d: chgPct1d // ★ 追加
         });
 
       }
     }
     
-    // データが見つからなかった場合や予期しない形式の場合
     console.error("Unexpected response format from Flask API or no data:", data);
     return res.status(500).json({ error: "Unexpected response format from Flask API or no data found" });
 
