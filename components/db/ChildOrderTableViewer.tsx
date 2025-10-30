@@ -69,7 +69,7 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
     if (!selectedParentOrderId) {
       return allRecords; // Show all if no filter is selected
     }
-    return allRecords.filter(record => record.ParentOrderId === selectedParentOrderId);
+    return allRecords.filter(record => String(record.ParentOrderId) === selectedParentOrderId);
   }, [allRecords, selectedParentOrderId]);
 
   // Handler to open the edit modal
@@ -127,15 +127,22 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
     return num.toLocaleString(undefined, { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits});
   }
 
-  // Corrected function to handle non-string inputs
-  const formatNullableString = (str: string | null | undefined | number) => {
-    if (str === null || str === undefined || typeof str !== 'string') {
-       // Optionally handle numbers if they might appear where strings are expected
-       // if (typeof str === 'number') return str.toString();
+  // Corrected function to handle non-string inputs (including numbers)
+  const formatNullableString = (value: string | null | undefined | number) => {
+    // Handle null or undefined
+    if (value === null || value === undefined) {
       return 'N/A';
     }
-    // Safely trim only if it's a non-null string
-    return str.trim() === '' ? 'N/A' : str;
+    // Handle numbers
+    if (typeof value === 'number') {
+      return value.toString();
+    }
+    // Handle strings
+    if (typeof value === 'string') {
+      return value.trim() === '' ? 'N/A' : value;
+    }
+    // Handle other types (just in case)
+    return 'N/A';
   }
 
   // --- Render Logic ---
@@ -149,7 +156,7 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
       {/* Filter Dropdown */}
       <div className="mb-4">
         <label htmlFor="parent-order-id-filter" className="block text-sm font-medium text-gray-700 mr-2">
-          ParentOrderID (ProjectID) で絞り込み:
+          ParentOrderId (ProjectID) で絞り込み:
         </label>
         <select
           id="parent-order-id-filter"
@@ -157,7 +164,7 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
           onChange={(e) => setSelectedParentOrderId(e.target.value)}
           className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         >
-          <option value="">すべてのParentOrderID</option>
+          <option value="">すべてのParentOrderId</option>
           {uniqueParentOrderIDs.map(pid => (
             <option key={pid} value={pid}>{pid}</option>
           ))}
@@ -166,7 +173,7 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
 
       {/* Message when filter yields no results */}
       {filteredRecords.length === 0 && selectedParentOrderId && !loading && (
-        <p className="text-center text-gray-500 mt-4">選択されたParentOrderID ({selectedParentOrderId}) の取引記録は見つかりません。</p>
+        <p className="text-center text-gray-500 mt-4">選択されたParentOrderId ({selectedParentOrderId}) の取引記録は見つかりません。</p>
       )}
 
       {/* Records Table */}
@@ -177,7 +184,7 @@ const ChildOrderTableViewer: React.FC<ChildOrderTableViewerProps> = ({ projectsF
               <tr className="bg-gray-200 text-gray-600 uppercase text-xs leading-normal">
                 {/* Updated Column Headers */}
                 <th className="py-3 px-3 text-left">ROWID</th>
-                <th className="py-3 px-3 text-left">ParentOrderID</th>
+                <th className="py-3 px-3 text-left">ParentOrderId</th>
                 <th className="py-3 px-3 text-right">Exec Qty</th>
                 <th className="py-3 px-3 text-right">Avg Px</th>
                 <th className="py-3 px-3 text-right">Vwap Px</th>
